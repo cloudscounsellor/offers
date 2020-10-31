@@ -1,0 +1,130 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Offer Details</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/wingcss/0.1.8/wing.min.css"/>
+    
+    
+        <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
+	<link href="css/style.css" rel="stylesheet" media="screen">
+	<link href="css/menustyle.css" rel="stylesheet" media="screen">
+	<link href="css/layoutstyle.css" rel="stylesheet" media="screen">	
+	<link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+    
+    
+    
+    <!-- Load AngularJS -->
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+    <script type="text/javascript">
+      var app = angular.module("OfferManagement", []);
+
+      //Controller Part
+      app.controller("OfferManagementController", function ($scope, $http) {
+
+        //Initialize page with default data which is blank in this example
+        $scope.offers = [];
+
+        $scope.form = {
+          customerID: "",
+          offerType: "",
+          offerDetail: ""
+        };
+
+        //Now load the data from server
+        _refreshPageData();
+
+        //HTTP POST methods for add offers
+        $scope.add = function () {
+          var data = { "customerID": $scope.form.customerID, "offerType": $scope.form.offerType , "offerDetail": $scope.form.offerDetail };
+
+          $http({
+            method: "POST",
+            url: '/offers',
+            data: angular.toJson(data),
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          }).then(_success, _error);
+        };
+
+        /* Private Methods */
+        //HTTP GET- get all offers collection
+        function _refreshPageData() {
+          $http({
+            method: 'GET',
+            url: '/offers'
+          }).then(function successCallback(response) {
+            $scope.offers = response.data;
+          }, function errorCallback(response) {
+            console.log(response.statusText);
+          });
+        }
+
+        function _success(response) {
+          _refreshPageData();
+          _clearForm();
+        }
+
+        function _error(response) {
+          alert(response.data.message || response.statusText);
+        }
+
+        //Clear the form
+        function _clearForm() {
+          $scope.form.customerID = "";
+          $scope.form.offerType = "";
+          $scope.form.offerDetail = "";
+        }
+      });
+    </script>
+</head>
+<body ng-app="OfferManagement" ng-controller="OfferManagementController">
+
+
+    <h1>Offer Details</h1>
+
+
+
+<div id="tabs">
+  <ul>
+    <li><a href="accounts.html"><span>Accounts</span></a></li>
+    <li><a href="transactions.html"><span>Transactions</span></a></li>
+    <li><a href="alerts.html"><span>Alerts</span></a></li>
+    <li><a href="offers.html"><span>Offers</span></a></li>
+   <li><a  href="dashboard.html"><span>Dashboard</span></a></li>
+  </ul>
+</div>
+
+
+
+<div class="container">
+   
+
+    <h3>Add an Offer</h3>
+    <form ng-submit="add()">
+      
+            <div class="col-6"><input type="text" placeholder="customerID" ng-model="form.customerID" size="60" style="width: 50%;"/></div>
+       
+            <div class="col-6"><input type="text" placeholder="offerType" ng-model="form.offerType" size="60" style="width: 50%;"/></div>
+            
+            <div class="col-6"><input type="text" placeholder="offerDetail" ng-model="form.offerDetail" size="60" style="width: 50%;"/></div>
+        
+        <input type="submit" value="Save"/>
+    </form>
+
+    <h3>Offer List</h3>
+    <div class="row" style=" border-color: black; border-style: solid; background-color: yellow;">
+        <div class="col-4">Customer ID</div>
+        <div class="col-4">Offer Type</div>
+        <div class="col-4">Offer Detail</div>
+    </div>
+    <div class="row" ng-repeat="offer in offers" style="border-bottom-color: black;border-bottom-style: solid; font-style: italic;"> 
+        <div class="col-4">{{ offer.customerID }}</div>
+        <div class="col-4">{{ offer.offerType }}</div>
+        <div class="col-4">{{ offer.offerDetail }}</div>
+    </div>
+</div>
+
+</body>
+</html>
